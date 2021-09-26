@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penis Size Ranker</title>
+</head>
+<body style="text-align: center;">
+    <h1>Penis Size Ranker</h1>
+    <image src="banana.jpg" style="width: 10rem; border-radius: 100%; box-shadow: 0px 0px 10px #888888;"></image>
+    <p>Enter your penis size in inches:</p>
+    <input id="inputBox" type="number" maxlength="2" style="width: 3rem" oninput="inputChanged()">
+    <button onclick="submitSize()">Submit</button>
+    <image id="loadingGif" src="loading.gif" style="display: none; margin: 2rem auto auto auto;"></image>
+    <p id="resultP"></p>
+
+    <script>
+        let resultP = document.getElementById("resultP")
+        let loadingGif = document.getElementById("loadingGif")
+        let inputBox = document.getElementById("inputBox")
+        let currentTimeout;
+
+        function submitSize() {
+            loadingGif.style.display = "block";
+            if (currentTimeout != null) {
+                clearTimeout(currentTimeout)
+            }
+            currentTimeout = setTimeout( giveResult, 1000, inputBox.value )
+        }
+
+        function giveResult(value) {
+            const averageSize = 5.17
+            const standardDev = .65
+            let size = parseFloat(value)
+            let zScore = (size-averageSize)/standardDev
+            let percentile = GetZPercent(zScore)
+
+            resultP.innerHTML = `You are larger than <b>${percentile.toPrecision(2)*100}%</b> of men.`
+            loadingGif.style.display="none"
+            resultP.style.display = "block"
+        }
+
+        function inputChanged() {
+            resultP.style.display = "none"
+        }
+
+        function GetZPercent(z) {
+            // z == number of standard deviations from the mean
+
+            // if z is greater than 6.5 standard deviations from the mean the
+            // number of significant digits will be outside of a reasonable range
+
+            if (z < -6.5) {
+            return 0.0;
+            }
+
+            if (z > 6.5) {
+            return 1.0;
+            }
+
+            var factK = 1;
+            var sum = 0;
+            var term = 1;
+            var k = 0;
+            var loopStop = Math.exp(-23);
+
+            while(Math.abs(term) > loopStop) {
+            term = .3989422804 * Math.pow(-1,k) * Math.pow(z,k) / (2 * k + 1) / Math.pow(2,k) * Math.pow(z,k+1) / factK;
+            sum += term;
+            k++;
+            factK *= k;
+            }
+
+            sum += 0.5;
+
+            return sum;
+        }
+    </script>
+</body>
+</html>
